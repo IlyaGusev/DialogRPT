@@ -1,6 +1,5 @@
 # author: Xiang Gao at Microsoft Research AI NLP Group
 
-
 import bz2, json, os, pickle, pdb, time, random
 import urllib.request
 import numpy as np
@@ -96,7 +95,7 @@ def extract_rc(date):
 
 
 def extract_rs(date):
-    path_bz2 = '%s/RS_%s.bz2'%(fld_bz2, date)
+    path_zst = '%s/RS_%s.jsonl'%(fld_bz2, date)
     roots = dict()
     subs = set()
     n = 0
@@ -117,7 +116,8 @@ def extract_rs(date):
             with open(fld + '/%s_roots.jsonl'%date, 'a', encoding="utf-8") as f:
                 f.write('\n'.join(roots[sub]) + '\n')
 
-    for line in bz2.open(path_bz2, 'rt', encoding="utf-8"):
+    f = open(path_zst, "r")
+    for line in f:
         n += 1
         line = line.strip('\n')
         try:
@@ -148,7 +148,7 @@ def extract_rs(date):
             save(roots)
             print('[RS_%s] saved %.2f/%.2f M, %i subreddits'%(date, m/1e6, n/1e6, len(subs)))
             roots = dict()
-    
+    f.close()
     save(roots)
     print('[RS_%s] FINAL %.2f/%.2f M, %i subreddits ================'%(
         date, m/1e6, n/1e6, len(subs)))
@@ -763,9 +763,8 @@ def shuffle(feedback, part, n_temp=10):
             f.write('\n'.join([lines[j].strip('\n') for j in jj]) + '\n')
 
 def get_subs():
-    return ['4chan']
     print('collectiing subs...')
-    subs = sorted(os.listdir(fld_subs))
+    subs = sorted(os.listdir(fld_jsonl))
     print('collected %i subs'%len(subs))
     return subs
 
